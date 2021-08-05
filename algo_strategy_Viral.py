@@ -10,12 +10,12 @@ import json
 Most of the algo code you write will be in this file unless you create new
 modules yourself. Start by modifying the 'on_turn' function.
 
-Advanced strategy tips: 
+Advanced strategy tips:
 
   - You can analyze action frames by modifying on_action_frame function
 
-  - The GameState.map object can be manually manipulated to create hypothetical 
-  board states. Though, we recommended making a copy of the map to preserve 
+  - The GameState.map object can be manually manipulated to create hypothetical
+  board states. Though, we recommended making a copy of the map to preserve
   the actual current map state.
 """
 
@@ -27,9 +27,10 @@ class AlgoStrategy(gamelib.AlgoCore):
         gamelib.debug_write('Random seed: {}'.format(seed))
 
     def on_game_start(self, config):
-        """ 
-        Read in config and perform any initial setup here 
         """
+        Read in config and perform any initial setup here
+        """
+        self.my_edges =  [[0,13], [1,12], [2,11], [3,10], [4,9], [5,8], [6,7], [7,6], [8,5], [9,4], [10,3], [11,2], [12,1], [13,0], [14,0], [15,1], [16,2], [17,3], [18,4], [19,5], [20,6], [21,7], [22,8], [23,9], [24,10], [25,11], [26,12], [27,13]]
         gamelib.debug_write('Configuring your custom algo strategy...')
         self.config = config
         global WALL, SUPPORT, TURRET, SCOUT, DEMOLISHER, INTERCEPTOR, MP, SP
@@ -53,11 +54,10 @@ class AlgoStrategy(gamelib.AlgoCore):
         game engine.
         """
         game_state = gamelib.GameState(self.config, turn_state)
-        game_state.attempt_spawn(DEMOLISHER, [24, 10], 3)
         gamelib.debug_write('Performing turn {} of your custom algo strategy'.format(game_state.turn_number))
         game_state.suppress_warnings(True)  #Comment or remove this line to enable warnings.
 
-        self.starter_strategy(game_state)
+        self.hard_strat(game_state)
 
         game_state.submit_turn()
 
@@ -66,6 +66,142 @@ class AlgoStrategy(gamelib.AlgoCore):
     NOTE: All the methods after this point are part of the sample starter-algo
     strategy and can safely be replaced for your custom algo.
     """
+
+    def hard_strat(self, game_state):
+        turret_locs = [[13,9], [22,12], [5,12], [2,13], [25,13]]
+        support_locs = [[21,7], [20,7], [19,7], [18,6], [17,6], [16,5],[16,4]]
+        turret_locs2 = [[18,9], [9,9]]
+        turret_locs3 = [[11,7], [3,11], [24,11]]
+        support_locs2 = [[14,0], [13,0], [14,3], [13,3], [12,4], [11,5], [10,6], [9,6], [16,2], [15,1], [14,1], [13,1], [12,1], [11,2], [10,3], [9,4]]
+
+        for l in turret_locs:
+            if len(game_state.game_map[l]) == 0:
+                if game_state.get_resource(0) >= 9:
+                    game_state.attempt_spawn(TURRET, l)
+                    game_state.attempt_upgrade(l)
+            if game_state.get_resource(0) < 9:
+                break
+
+        for l in support_locs:
+            if len(game_state.game_map[l]) == 0:
+                if game_state.get_resource(0) >= 8:
+                    game_state.attempt_spawn(SUPPORT, l)
+            if game_state.get_resource(0) < 1:
+                break
+
+
+        for l in turret_locs2:
+            if len(game_state.game_map[l]) == 0:
+                if game_state.get_resource(0) >= 9:
+                    game_state.attempt_spawn(TURRET, l)
+                    game_state.attempt_upgrade(l)
+            if game_state.get_resource(0) < 9:
+                break
+
+        for l in support_locs:
+            if len(game_state.game_map[l]) != 0:
+                if game_state.get_resource(0) >= 7:
+                    game_state.attempt_upgrade(l)
+            if game_state.get_resource(0) < 7:
+                break
+
+        for l in turret_locs3:
+            if len(game_state.game_map[l]) == 0:
+                if game_state.get_resource(0) >= 9:
+                    game_state.attempt_spawn(TURRET, l)
+                    game_state.attempt_upgrade(l)
+            if game_state.get_resource(0) < 9:
+                break
+
+        for l in support_locs2:
+            if len(game_state.game_map[l]) == 0:
+                if game_state.get_resource(0) >= 8:
+                    game_state.attempt_spawn(SUPPORT, l)
+            if game_state.get_resource(0) < 1:
+                break
+
+        for l in support_locs2:
+            if len(game_state.game_map[l]) != 0:
+                if game_state.get_resource(0) >= 7:
+                    game_state.attempt_upgrade(l)
+            if game_state.get_resource(0) < 7:
+                break
+
+
+        damages = [self.netProtect(game_state, edge) for edge in self.my_edges]
+
+        best_loc = self.my_edges[damages.index(max(damages))]
+
+        if game_state.turn_number < 5:
+            game_state.attempt_spawn(SCOUT,best_loc,1)
+
+        elif game_state.get_resource(1) >= 5 and game_state.turn_number < 15:
+            game_state.attempt_spawn(SCOUT,best_loc,5)
+        elif game_state.get_resource(1) >= 10 and game_state.turn_number < 25:
+            game_state.attempt_spawn(SCOUT, best_loc, 10)
+        elif game_state.get_resource(1) >= 13:
+            game_state.attempt_spawn(SCOUT, best_loc, 13)
+
+
+    def get_shielders(self, game_state, start_location, player_index = 0):
+          """Gets the stationary units threatening a given location
+
+          Args:
+              location: The location of spawn
+              player_index: The index corresponding to the defending player, 0 for you 1 for the enemy
+
+          Returns:
+              A list of units that would attack a unit controlled by the given player at the given location
+
+          """
+
+          if not player_index == 0 and not player_index == 1:
+              self._invalid_player_index(player_index)
+          if not game_state.game_map.in_arena_bounds(start_location):
+              self.warn("Location {} is not in the arena bounds.".format(start_location))
+
+          attackers = []
+          """
+          Get locations in the range of support units
+          """
+
+          shieldT = 0
+
+          checked_locs = []
+          max_range = 0
+          for unit in self.config["unitInformation"]:
+              if unit.get('shieldRange', 0) >= max_range:
+                  max_range = unit.get('shieldRange', 0)
+
+          location_list = game_state.find_path_to_edge(start_location)
+
+          if location_list == None:
+              return -10000
+
+          for location in location_list:
+              possible_locations= game_state.game_map.get_locations_in_range(location, max_range)
+              for loc in possible_locations:
+                  if loc in checked_locs:
+                      possible_locations.remove(loc)
+              for loc in possible_locations:
+                  checked_locs.append(loc)
+              for location_unit in possible_locations:
+                  for unit in game_state.game_map[location_unit]:
+                      if unit.damage_i + unit.damage_f == 0 and unit.player_index != player_index and game_state.game_map.distance_between_locations(location, location_unit) <= unit.shieldRange:
+                          attackers.append(unit)
+                          shieldT += unit.shieldPerUnit
+          return shieldT
+
+
+
+    def netProtect(self, game_state, start):
+        defe = self.get_shielders(game_state, start)
+        atk = self.least_damage_spawn_location(game_state, [start])[0]
+        return defe-atk
+
+
+
+
 
     def starter_strategy(self, game_state):
         """
@@ -114,7 +250,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         turret_locations = [[0, 13], [27, 13], [8, 11], [19, 11], [13, 11], [14, 11]]
         # attempt_spawn will try to spawn units if we have resources, and will check if a blocking unit is already there
         game_state.attempt_spawn(TURRET, turret_locations)
-        
+
         # Place walls in front of turrets to soak up damage for them
         wall_locations = [[8, 12], [19, 12]]
         game_state.attempt_spawn(WALL, wall_locations)
@@ -124,7 +260,7 @@ class AlgoStrategy(gamelib.AlgoCore):
     def build_reactive_defense(self, game_state):
         """
         This function builds reactive defenses based on where the enemy scored on us from.
-        We can track where the opponent scored by looking at events in action frames 
+        We can track where the opponent scored by looking at events in action frames
         as shown in the on_action_frame function
         """
         for location in self.scored_on_locations:
@@ -138,20 +274,20 @@ class AlgoStrategy(gamelib.AlgoCore):
         """
         # We can spawn moving units on our edges so a list of all our edge locations
         friendly_edges = game_state.game_map.get_edge_locations(game_state.game_map.BOTTOM_LEFT) + game_state.game_map.get_edge_locations(game_state.game_map.BOTTOM_RIGHT)
-        
-        # Remove locations that are blocked by our own structures 
+
+        # Remove locations that are blocked by our own structures
         # since we can't deploy units there.
         deploy_locations = self.filter_blocked_locations(friendly_edges, game_state)
-        
+
         # While we have remaining MP to spend lets send out interceptors randomly.
         while game_state.get_resource(MP) >= game_state.type_cost(INTERCEPTOR)[MP] and len(deploy_locations) > 0:
             # Choose a random deploy location.
             deploy_index = random.randint(0, len(deploy_locations) - 1)
             deploy_location = deploy_locations[deploy_index]
-            
+
             game_state.attempt_spawn(INTERCEPTOR, deploy_location)
             """
-            We don't have to remove the location since multiple mobile 
+            We don't have to remove the location since multiple mobile
             units can occupy the same space.
             """
 
@@ -180,21 +316,25 @@ class AlgoStrategy(gamelib.AlgoCore):
     def least_damage_spawn_location(self, game_state, location_options):
         """
         This function will help us guess which location is the safest to spawn moving units from.
-        It gets the path the unit will take then checks locations on that path to 
+        It gets the path the unit will take then checks locations on that path to
         estimate the path's damage risk.
         """
         damages = []
         # Get the damage estimate each path will take
         for location in location_options:
             path = game_state.find_path_to_edge(location)
+
+            if path == None:
+                return [100000]
+
             damage = 0
             for path_location in path:
                 # Get number of enemy turrets that can attack each location and multiply by turret damage
-                damage += len(game_state.get_attackers(path_location, 0)) * gamelib.GameUnit(TURRET, game_state.config).damage_i
+                damage += sum([unit.damage_i for unit in game_state.get_attackers(path_location, 0)])
             damages.append(damage)
-        
+
         # Now just return the location that takes the least damage
-        return location_options[damages.index(min(damages))]
+        return damages
 
     def detect_enemy_unit(self, game_state, unit_type=None, valid_x = None, valid_y = None):
         total_units = 0
@@ -204,7 +344,7 @@ class AlgoStrategy(gamelib.AlgoCore):
                     if unit.player_index == 1 and (unit_type is None or unit.unit_type == unit_type) and (valid_x is None or location[0] in valid_x) and (valid_y is None or location[1] in valid_y):
                         total_units += 1
         return total_units
-        
+
     def filter_blocked_locations(self, locations, game_state):
         filtered = []
         for location in locations:
@@ -214,7 +354,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 
     def on_action_frame(self, turn_string):
         """
-        This is the action frame of the game. This function could be called 
+        This is the action frame of the game. This function could be called
         hundreds of times per turn and could slow the algo down so avoid putting slow code here.
         Processing the action frames is complicated so we only suggest it if you have time and experience.
         Full doc on format of a game frame at in json-docs.html in the root of the Starterkit.
@@ -226,7 +366,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         for breach in breaches:
             location = breach[0]
             unit_owner_self = True if breach[4] == 1 else False
-            # When parsing the frame data directly, 
+            # When parsing the frame data directly,
             # 1 is integer for yourself, 2 is opponent (StarterKit code uses 0, 1 as player_index instead)
             if not unit_owner_self:
                 gamelib.debug_write("Got scored on at: {}".format(location))

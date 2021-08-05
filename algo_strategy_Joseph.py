@@ -57,6 +57,8 @@ class AlgoStrategy(gamelib.AlgoCore):
         gamelib.debug_write('Performing turn {} of your custom algo strategy'.format(game_state.turn_number))
         game_state.suppress_warnings(True)  #Comment or remove this line to enable warnings.
 
+        # self.starter_strategy(game_state)
+
         self.strategy(game_state)
 
         game_state.submit_turn()
@@ -105,74 +107,81 @@ class AlgoStrategy(gamelib.AlgoCore):
                 support_locations = [[13, 2], [14, 2], [13, 3], [14, 3]]
                 game_state.attempt_spawn(SUPPORT, support_locations)
 
-    # this is the only method that is actually used
     def strategy(self, game_state):
-        turret_locations1 = [[3, 12],[24,12],[9,7],[18,7],[14,6]]
-        turret_locations2 = [[6,9],[21,9],[2,12],[25,12],[14,5]]
-        wall_locations = [[3,13],[24,13],[9,8],[18,8],[14,7],[6,10],[21,10],[0,13],[1,13],[2,13],[25,13],[26,13],[27,13],[4,12],[22,12],[5,11],[22,11],[6,10],[21,10],[7,9],[20,9],[8,8],[19,8],[10,7],[11,7],[12,7],[13,7],[14,7],[16,7],[17,7]]
+        primary_turret_locs = [[3, 12],[24,12],[9,6],[18,6]]
+        secondary_turret_locs = [[2,12],[25,12],[21,9],[6,9]]
+        extra_turret_locs = [[14,6],[1,12],[26,12],[7,8],[20,8]]
+
+        turret_reorg_locs = [[24,12],[21,9],[20,10],[22,10],[25,12],[19,10],[19,9],[26,12],[20,11],[18,6]]
+
+        primary_wall_locs = [[i,13] for i in range(4)] + [[i,13] for i in range(24,28)]
+        secondary_wall_locs = [[9-i,7+i] for i in range(6)] + [[18+i,7+i] for i in range(4)] + [[23,12]]
+        special_wall_locs = [[i,7] for i in range(10,18)]
+
         support_locations1 = [[i,6] for i in range(9,14)]
         support_locations2  = [[i,5] for i in range(10,14)]
 
-        game_state.attempt_spawn(WALL,wall_locations)
-        if game_state.get_resource(0) >= 9:
-            for i in range(len(turret_locations1)):
-                if game_state.attempt_spawn(TURRET, turret_locations1[i]) == 1:
-                    game_state.attempt_upgrade(turret_locations1[i])
-                    break
+        turn = game_state.turn_number
+        [mySP, myMP] = game_state.get_resources(0)
+        [enemySP, enemyMP] = game_state.get_resources(1)
 
-        if game_state.get_resource(0) >= 8:
-            for i in range(len(support_locations1)):
-                if game_state.attempt_spawn(SUPPORT,support_locations1[i]) == 1:
-                    game_state.attempt_upgrade(support_locations1[i])
-                    break
+        # build defences
+        if turn == 25:
+            game_state.attempt_remove([[2,12],[6,9],[7,8],[9,6],[14,6],[18,6]])
+        if turn > 25:
+            game_state.attempt_spawn(WALL, special_wall_locs)
+            game_state.attempt_spawn(TURRET,turret_reorg_locs)
+            game_state.attempt_upgrade(turret_reorg_locs)
+            game_state.attempt_spawn(WALL,[[19,11],[20,12],[22,12]])
+            game_state.attempt_spawn(WALL, primary_wall_locs + secondary_wall_locs)
+            game_state.attempt_upgrade(support_locations2)
+            game_state.attempt_upgrade(primary_wall_locs+secondary_wall_locs)
+            game_state.attempt_spawn(SUPPORT,[[i+11,2] for i in range(3)])
+            game_state.attempt_upgrade(support_locations1)
+            game_state.attempt_upgrade([[i+11,2] for i in range(3)])
 
-        if game_state.get_resource(0) >= 9:
-            for i in range(len(turret_locations2)):
-                if game_state.attempt_spawn(TURRET, turret_locations2[i]) == 1:
-                    game_state.attempt_upgrade(turret_locations2[i])
-                    break
+        if turn < 25:
+            game_state.attempt_spawn(TURRET, primary_turret_locs)
+            game_state.attempt_upgrade(primary_turret_locs)
 
-        if game_state.get_resource(0) >= 8:
-            for i in range(len(support_locations2)):
-                if game_state.attempt_spawn(SUPPORT,support_locations2[i]) == 1:
-                    game_state.attempt_upgrade(support_locations2[i])
-                    break
+            if turn > 5:
+                game_state.attempt_spawn(TURRET, secondary_turret_locs)
+                game_state.attempt_upgrade(secondary_turret_locs)
 
-        if game_state.get_resource(1) >= 5 and game_state.turn_number < 15:
-            game_state.attempt_spawn(SCOUT,[9,4],5)
-        elif game_state.get_resource(1) >= 10 and game_state.turn_number < 25:
-            game_state.attempt_spawn(SCOUT, [9, 4], 10)
-        elif game_state.get_resource(1) >= 13:
-            game_state.attempt_spawn(SCOUT, [9, 4], 13)
+                if game_state.attempt_upgrade(secondary_turret_locs) == 0:
+                    game_state.attempt_spawn(WALL, primary_wall_locs)
 
-    def first_round(self, game_state):
-        game_state.attempt_spawn(TURRET, [[3,12],[24,12]])
-        game_state.attempt_spawn(WALL,[[3,13],[24,13]])
-        game_state.attempt_upgrade([3,12])
-        game_state.attempt_spawn(SCOUT,[18,4])
+            if turn > 15:
+                game_state.attempt_spawn(WALL,[11,4])
+                game_state.attempt_spawn(TURRET, extra_turret_locs)
+                game_state.attempt_upgrade(extra_turret_locs)
+                game_state.attempt_spawn(WALL, primary_wall_locs)
+                game_state.attempt_spawn(WALL, secondary_wall_locs)
 
-    def second_round(self, game_state):
-        game_state.attempt_spawn(SCOUT, [9,4])
+            if turn > 20:
+                game_state.attempt_spawn(SUPPORT, support_locations2)
+                temp = game_state.attempt_upgrade(support_locations2)
+                if temp != 0:
+                    game_state.attempt_spawn(SUPPORT, support_locations1)
+                    game_state.attempt_upgrade(support_locations1)
+                    game_state.attempt_spawn(WALL, special_wall_locs)
+                    game_state.attempt_upgrade(primary_wall_locs)
 
-    def third_round(self, game_state):
-        game_state.attempt_upgrade([24,12])
-        game_state.attempt_spawn(SCOUT,[18,4])
+        # attacks
+        if turn < 5:
+            if turn % 2 == 0:
+                game_state.attempt_spawn(INTERCEPTOR,[20,6])
+            else:
+                game_state.attempt_spawn(INTERCEPTOR,[7,6])
 
-    def fourth_round(self, game_state):
-        game_state.attempt_spawn(SCOUT,[9,4])
-        game_state.attempt_spawn(TURRET,[9,7])
-        game_state.attempt_upgrade([9,7])
+        if turn >= 5 and turn < 20:
+            if myMP >= 3*(math.floor(turn/5)):
+                game_state.attempt_spawn(SCOUT,[9,4],3*(math.floor(turn/5)))
+        else:
+            if myMP >= 3*(math.floor(turn/5)):
+                game_state.attempt_spawn(SCOUT,[9,4],math.floor(myMP/2))
+                game_state.attempt_spawn(SCOUT,[10,3],int(myMP))
 
-    def fifth_round(self, game_state):
-        game_state.attempt_spawn(TURRET,[18,7])
-        game_state.attempt_spawn(WALL,[[9,8],[18,8]])
-        game_state.attempt_upgrade([18,7])
-        game_state.attempt_spawn(SCOUT,[9,4])
-
-    def second_stage(self, game_state):
-        turret_locations = [[2,12],[2,3],[6,9],[9,7],[14,6],[16,6],[18,7],[21,9],[24,12],[25,12]]
-        game_state.attempt_upgrade([18,7])
-        game_state.attempt_upgrade([[18,8],[9,8]])
 
     def build_defences(self, game_state):
         """
@@ -199,12 +208,12 @@ class AlgoStrategy(gamelib.AlgoCore):
         We can track where the opponent scored by looking at events in action frames 
         as shown in the on_action_frame function
         """
-        """
+
         for location in self.scored_on_locations:
             # Build turret one space above so that it doesn't block our own edge spawn locations
             build_location = [location[0], location[1]+1]
             game_state.attempt_spawn(TURRET, build_location)
-        """
+
 
 
     def stall_with_interceptors(self, game_state):
