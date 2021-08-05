@@ -8,5 +8,5 @@ import json
 from strategies import *
 
 if __name__ == "__main__":
-    algo = V2Strategy()
+    algo = V1Strategy()
     algo.start()
