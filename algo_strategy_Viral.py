@@ -147,7 +147,7 @@ class AlgoStrategy(gamelib.AlgoCore):
           """Gets the stationary units threatening a given location
 
           Args:
-              location: The location of a hypothetical defender
+              location: The location of spawn
               player_index: The index corresponding to the defending player, 0 for you 1 for the enemy
 
           Returns:
@@ -162,7 +162,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 
           attackers = []
           """
-          Get locations in the range of TURRET units
+          Get locations in the range of support units
           """
 
           shieldT = 0
