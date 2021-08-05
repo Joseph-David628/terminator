@@ -53,11 +53,11 @@ class AlgoStrategy(gamelib.AlgoCore):
         game engine.
         """
         game_state = gamelib.GameState(self.config, turn_state)
-        game_state.attempt_spawn(DEMOLISHER, [24, 10], 3)
+        # game_state.attempt_spawn(DEMOLISHER, [24, 10], 3)
         gamelib.debug_write('Performing turn {} of your custom algo strategy'.format(game_state.turn_number))
         game_state.suppress_warnings(True)  #Comment or remove this line to enable warnings.
 
-        self.starter_strategy(game_state)
+        self.strategy(game_state)
 
         game_state.submit_turn()
 
@@ -75,9 +75,12 @@ class AlgoStrategy(gamelib.AlgoCore):
         If there are no stationary units to attack in the front, we will send Scouts to try and score quickly.
         """
         # First, place basic defenses
-        self.build_defences(game_state)
+        # self.build_defences(game_state)
+
+
+
         # Now build reactive defenses based on where the enemy scored
-        self.build_reactive_defense(game_state)
+        # self.build_reactive_defense(game_state)
 
         # If the turn is less than 5, stall with interceptors and wait to see enemy's base
         if game_state.turn_number < 5:
@@ -101,6 +104,75 @@ class AlgoStrategy(gamelib.AlgoCore):
                 # Lastly, if we have spare SP, let's build some supports
                 support_locations = [[13, 2], [14, 2], [13, 3], [14, 3]]
                 game_state.attempt_spawn(SUPPORT, support_locations)
+
+    # this is the only method that is actually used
+    def strategy(self, game_state):
+        turret_locations1 = [[3, 12],[24,12],[9,7],[18,7],[14,6]]
+        turret_locations2 = [[6,9],[21,9],[2,12],[25,12],[14,5]]
+        wall_locations = [[3,13],[24,13],[9,8],[18,8],[14,7],[6,10],[21,10],[0,13],[1,13],[2,13],[25,13],[26,13],[27,13],[4,12],[22,12],[5,11],[22,11],[6,10],[21,10],[7,9],[20,9],[8,8],[19,8],[10,7],[11,7],[12,7],[13,7],[14,7],[16,7],[17,7]]
+        support_locations1 = [[i,6] for i in range(9,14)]
+        support_locations2  = [[i,5] for i in range(10,14)]
+
+        game_state.attempt_spawn(WALL,wall_locations)
+        if game_state.get_resource(0) >= 9:
+            for i in range(len(turret_locations1)):
+                if game_state.attempt_spawn(TURRET, turret_locations1[i]) == 1:
+                    game_state.attempt_upgrade(turret_locations1[i])
+                    break
+
+        if game_state.get_resource(0) >= 8:
+            for i in range(len(support_locations1)):
+                if game_state.attempt_spawn(SUPPORT,support_locations1[i]) == 1:
+                    game_state.attempt_upgrade(support_locations1[i])
+                    break
+
+        if game_state.get_resource(0) >= 9:
+            for i in range(len(turret_locations2)):
+                if game_state.attempt_spawn(TURRET, turret_locations2[i]) == 1:
+                    game_state.attempt_upgrade(turret_locations2[i])
+                    break
+
+        if game_state.get_resource(0) >= 8:
+            for i in range(len(support_locations2)):
+                if game_state.attempt_spawn(SUPPORT,support_locations2[i]) == 1:
+                    game_state.attempt_upgrade(support_locations2[i])
+                    break
+
+        if game_state.get_resource(1) >= 5 and game_state.turn_number < 15:
+            game_state.attempt_spawn(SCOUT,[9,4],5)
+        elif game_state.get_resource(1) >= 10 and game_state.turn_number < 25:
+            game_state.attempt_spawn(SCOUT, [9, 4], 10)
+        elif game_state.get_resource(1) >= 13:
+            game_state.attempt_spawn(SCOUT, [9, 4], 13)
+
+    def first_round(self, game_state):
+        game_state.attempt_spawn(TURRET, [[3,12],[24,12]])
+        game_state.attempt_spawn(WALL,[[3,13],[24,13]])
+        game_state.attempt_upgrade([3,12])
+        game_state.attempt_spawn(SCOUT,[18,4])
+
+    def second_round(self, game_state):
+        game_state.attempt_spawn(SCOUT, [9,4])
+
+    def third_round(self, game_state):
+        game_state.attempt_upgrade([24,12])
+        game_state.attempt_spawn(SCOUT,[18,4])
+
+    def fourth_round(self, game_state):
+        game_state.attempt_spawn(SCOUT,[9,4])
+        game_state.attempt_spawn(TURRET,[9,7])
+        game_state.attempt_upgrade([9,7])
+
+    def fifth_round(self, game_state):
+        game_state.attempt_spawn(TURRET,[18,7])
+        game_state.attempt_spawn(WALL,[[9,8],[18,8]])
+        game_state.attempt_upgrade([18,7])
+        game_state.attempt_spawn(SCOUT,[9,4])
+
+    def second_stage(self, game_state):
+        turret_locations = [[2,12],[2,3],[6,9],[9,7],[14,6],[16,6],[18,7],[21,9],[24,12],[25,12]]
+        game_state.attempt_upgrade([18,7])
+        game_state.attempt_upgrade([[18,8],[9,8]])
 
     def build_defences(self, game_state):
         """
@@ -127,10 +199,13 @@ class AlgoStrategy(gamelib.AlgoCore):
         We can track where the opponent scored by looking at events in action frames 
         as shown in the on_action_frame function
         """
+        """
         for location in self.scored_on_locations:
             # Build turret one space above so that it doesn't block our own edge spawn locations
             build_location = [location[0], location[1]+1]
             game_state.attempt_spawn(TURRET, build_location)
+        """
+
 
     def stall_with_interceptors(self, game_state):
         """
@@ -237,3 +312,4 @@ class AlgoStrategy(gamelib.AlgoCore):
 if __name__ == "__main__":
     algo = AlgoStrategy()
     algo.start()
+
