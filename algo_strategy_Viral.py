@@ -4,6 +4,7 @@ import math
 import warnings
 from sys import maxsize
 import json
+import math
 
 
 """
@@ -30,6 +31,9 @@ class AlgoStrategy(gamelib.AlgoCore):
         """
         Read in config and perform any initial setup here
         """
+        self.att_dir = {}
+        self.def_dir = {}
+        self.opp_edges = [[0,14], [1,15], [2,16], [3,17], [4,18], [5,19], [6,20], [7,21], [8,22], [9,23], [10,24], [11,25], [12,26], [13,27], [14,27], [15,26], [16,25], [17,24], [18,23], [19,22], [20,21], [21,20], [22,19], [23,18], [24,17], [25,16], [26,15], [27,14]]
         self.my_edges =  [[0,13], [1,12], [2,11], [3,10], [4,9], [5,8], [6,7], [7,6], [8,5], [9,4], [10,3], [11,2], [12,1], [13,0], [14,0], [15,1], [16,2], [17,3], [18,4], [19,5], [20,6], [21,7], [22,8], [23,9], [24,10], [25,11], [26,12], [27,13]]
         gamelib.debug_write('Configuring your custom algo strategy...')
         self.config = config
@@ -127,43 +131,28 @@ class AlgoStrategy(gamelib.AlgoCore):
             if game_state.get_resource(0) < 7:
                 break
 
-
+        self.att_dir = {}
         damages = [self.netProtect(game_state, edge) for edge in self.my_edges]
 
-        best_loc = self.my_edges[damages.index(max(damages))]
+        SC_health = 15
 
-        if game_state.turn_number < 5:
-            game_state.attempt_spawn(SCOUT,best_loc,1)
+        mattack = math.floor(game_state.get_resource(1)) - 1
+        netDams = [mattack*(SC_health+a) - b for a,b in damages]
+        gamelib.debug_write(netDams)
 
-        elif game_state.get_resource(1) >= 5 and game_state.turn_number < 15:
-            game_state.attempt_spawn(SCOUT,best_loc,5)
-        elif game_state.get_resource(1) >= 10 and game_state.turn_number < 25:
-            game_state.attempt_spawn(SCOUT, best_loc, 10)
-        elif game_state.get_resource(1) >= 13:
-            game_state.attempt_spawn(SCOUT, best_loc, 13)
+        if any(n > 0 for n in netDams):
+            best_loc = self.my_edges[netDams.index(max(netDams))]
+            game_state.attempt_spawn(SCOUT,best_loc,mattack)
 
 
-    def get_shielders(self, game_state, start_location, player_index = 0):
-          """Gets the stationary units threatening a given location
+    #given path, calculate shielding recieved PER UNIT
+    def get_shielders(self, game_state, location_list, player_index = 0):
 
-          Args:
-              location: The location of spawn
-              player_index: The index corresponding to the defending player, 0 for you 1 for the enemy
-
-          Returns:
-              A list of units that would attack a unit controlled by the given player at the given location
-
-          """
 
           if not player_index == 0 and not player_index == 1:
               self._invalid_player_index(player_index)
-          if not game_state.game_map.in_arena_bounds(start_location):
-              self.warn("Location {} is not in the arena bounds.".format(start_location))
 
           attackers = []
-          """
-          Get locations in the range of support units
-          """
 
           shieldT = 0
 
@@ -173,11 +162,9 @@ class AlgoStrategy(gamelib.AlgoCore):
               if unit.get('shieldRange', 0) >= max_range:
                   max_range = unit.get('shieldRange', 0)
 
-          location_list = game_state.find_path_to_edge(start_location)
-
           if location_list == None:
               return -10000
-
+          gamelib.debug_write(len(location_list))
           for location in location_list:
               possible_locations= game_state.game_map.get_locations_in_range(location, max_range)
               for loc in possible_locations:
@@ -187,133 +174,13 @@ class AlgoStrategy(gamelib.AlgoCore):
                   checked_locs.append(loc)
               for location_unit in possible_locations:
                   for unit in game_state.game_map[location_unit]:
-                      if unit.damage_i + unit.damage_f == 0 and unit.player_index != player_index and game_state.game_map.distance_between_locations(location, location_unit) <= unit.shieldRange:
+                      if unit.player_index == player_index and game_state.game_map.distance_between_locations(location, location_unit) <= unit.shieldRange:
                           attackers.append(unit)
                           shieldT += unit.shieldPerUnit
           return shieldT
 
-
-
-    def netProtect(self, game_state, start):
-        defe = self.get_shielders(game_state, start)
-        atk = self.least_damage_spawn_location(game_state, [start])[0]
-        return defe-atk
-
-
-
-
-
-    def starter_strategy(self, game_state):
-        """
-        For defense we will use a spread out layout and some interceptors early on.
-        We will place turrets near locations the opponent managed to score on.
-        For offense we will use long range demolishers if they place stationary units near the enemy's front.
-        If there are no stationary units to attack in the front, we will send Scouts to try and score quickly.
-        """
-        # First, place basic defenses
-        self.build_defences(game_state)
-        # Now build reactive defenses based on where the enemy scored
-        self.build_reactive_defense(game_state)
-
-        # If the turn is less than 5, stall with interceptors and wait to see enemy's base
-        if game_state.turn_number < 5:
-            self.stall_with_interceptors(game_state)
-        else:
-            # Now let's analyze the enemy base to see where their defenses are concentrated.
-            # If they have many units in the front we can build a line for our demolishers to attack them at long range.
-            if self.detect_enemy_unit(game_state, unit_type=None, valid_x=None, valid_y=[14, 15]) > 10:
-                self.demolisher_line_strategy(game_state)
-            else:
-                # They don't have many units in the front so lets figure out their least defended area and send Scouts there.
-
-                # Only spawn Scouts every other turn
-                # Sending more at once is better since attacks can only hit a single scout at a time
-                if game_state.turn_number % 2 == 1:
-                    # To simplify we will just check sending them from back left and right
-                    scout_spawn_location_options = [[13, 0], [14, 0]]
-                    best_location = self.least_damage_spawn_location(game_state, scout_spawn_location_options)
-                    game_state.attempt_spawn(SCOUT, best_location, 1000)
-
-                # Lastly, if we have spare SP, let's build some supports
-                support_locations = [[13, 2], [14, 2], [13, 3], [14, 3]]
-                game_state.attempt_spawn(SUPPORT, support_locations)
-
-    def build_defences(self, game_state):
-        """
-        Build basic defenses using hardcoded locations.
-        Remember to defend corners and avoid placing units in the front where enemy demolishers can attack them.
-        """
-        # Useful tool for setting up your base locations: https://www.kevinbai.design/terminal-map-maker
-        # More community tools available at: https://terminal.c1games.com/rules#Download
-
-        # Place turrets that attack enemy units
-        turret_locations = [[0, 13], [27, 13], [8, 11], [19, 11], [13, 11], [14, 11]]
-        # attempt_spawn will try to spawn units if we have resources, and will check if a blocking unit is already there
-        game_state.attempt_spawn(TURRET, turret_locations)
-
-        # Place walls in front of turrets to soak up damage for them
-        wall_locations = [[8, 12], [19, 12]]
-        game_state.attempt_spawn(WALL, wall_locations)
-        # upgrade walls so they soak more damage
-        game_state.attempt_upgrade(wall_locations)
-
-    def build_reactive_defense(self, game_state):
-        """
-        This function builds reactive defenses based on where the enemy scored on us from.
-        We can track where the opponent scored by looking at events in action frames
-        as shown in the on_action_frame function
-        """
-        for location in self.scored_on_locations:
-            # Build turret one space above so that it doesn't block our own edge spawn locations
-            build_location = [location[0], location[1]+1]
-            game_state.attempt_spawn(TURRET, build_location)
-
-    def stall_with_interceptors(self, game_state):
-        """
-        Send out interceptors at random locations to defend our base from enemy moving units.
-        """
-        # We can spawn moving units on our edges so a list of all our edge locations
-        friendly_edges = game_state.game_map.get_edge_locations(game_state.game_map.BOTTOM_LEFT) + game_state.game_map.get_edge_locations(game_state.game_map.BOTTOM_RIGHT)
-
-        # Remove locations that are blocked by our own structures
-        # since we can't deploy units there.
-        deploy_locations = self.filter_blocked_locations(friendly_edges, game_state)
-
-        # While we have remaining MP to spend lets send out interceptors randomly.
-        while game_state.get_resource(MP) >= game_state.type_cost(INTERCEPTOR)[MP] and len(deploy_locations) > 0:
-            # Choose a random deploy location.
-            deploy_index = random.randint(0, len(deploy_locations) - 1)
-            deploy_location = deploy_locations[deploy_index]
-
-            game_state.attempt_spawn(INTERCEPTOR, deploy_location)
-            """
-            We don't have to remove the location since multiple mobile
-            units can occupy the same space.
-            """
-
-    def demolisher_line_strategy(self, game_state):
-        """
-        Build a line of the cheapest stationary unit so our demolisher can attack from long range.
-        """
-        # First let's figure out the cheapest unit
-        # We could just check the game rules, but this demonstrates how to use the GameUnit class
-        stationary_units = [WALL, TURRET, SUPPORT]
-        cheapest_unit = WALL
-        for unit in stationary_units:
-            unit_class = gamelib.GameUnit(unit, game_state.config)
-            if unit_class.cost[game_state.MP] < gamelib.GameUnit(cheapest_unit, game_state.config).cost[game_state.MP]:
-                cheapest_unit = unit
-
-        # Now let's build out a line of stationary units. This will prevent our demolisher from running into the enemy base.
-        # Instead they will stay at the perfect distance to attack the front two rows of the enemy base.
-        for x in range(27, 5, -1):
-            game_state.attempt_spawn(cheapest_unit, [x, 11])
-
-        # Now spawn demolishers next to the line
-        # By asking attempt_spawn to spawn 1000 units, it will essentially spawn as many as we have resources for
-        game_state.attempt_spawn(DEMOLISHER, [24, 10], 1000)
-
-    def least_damage_spawn_location(self, game_state, location_options):
+    #given path, estimate damage
+    def least_damage_spawn_location(self, game_state, path):
         """
         This function will help us guess which location is the safest to spawn moving units from.
         It gets the path the unit will take then checks locations on that path to
@@ -321,29 +188,30 @@ class AlgoStrategy(gamelib.AlgoCore):
         """
         damages = []
         # Get the damage estimate each path will take
-        for location in location_options:
-            path = game_state.find_path_to_edge(location)
 
-            if path == None:
-                return [100000]
+        if path == None:
+            return 100000
 
-            damage = 0
-            for path_location in path:
-                # Get number of enemy turrets that can attack each location and multiply by turret damage
+        damage = 0
+        for path_location in path:
+            # Get number of enemy turrets that can attack each location and multiply by turret damage
+            if tuple(path_location) in self.att_dir:
                 damage += sum([unit.damage_i for unit in game_state.get_attackers(path_location, 0)])
-            damages.append(damage)
+            else:
+                temp = sum([unit.damage_i for unit in game_state.get_attackers(path_location, 0)])
+                damage += temp
+                self.att_dir[tuple(path_location)] = temp
+        damages.append(damage)
 
         # Now just return the location that takes the least damage
-        return damages
+        return damages[0]
 
-    def detect_enemy_unit(self, game_state, unit_type=None, valid_x = None, valid_y = None):
-        total_units = 0
-        for location in game_state.game_map:
-            if game_state.contains_stationary_unit(location):
-                for unit in game_state.game_map[location]:
-                    if unit.player_index == 1 and (unit_type is None or unit.unit_type == unit_type) and (valid_x is None or location[0] in valid_x) and (valid_y is None or location[1] in valid_y):
-                        total_units += 1
-        return total_units
+    def netProtect(self, game_state, start):
+        path = game_state.find_path_to_edge(start)
+        defe = self.get_shielders(game_state, path)
+        atk = self.least_damage_spawn_location(game_state, path)
+        gamelib.debug_write("Calculating Optimal Attack Angle for", game_state.turn_number, start, atk, defe)
+        return [defe,atk]
 
     def filter_blocked_locations(self, locations, game_state):
         filtered = []
