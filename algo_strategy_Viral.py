@@ -5,6 +5,7 @@ import warnings
 from sys import maxsize
 import json
 import math
+from copy import deepcopy
 
 
 """
@@ -25,7 +26,7 @@ class AlgoStrategy(gamelib.AlgoCore):
         super().__init__()
         seed = random.randrange(maxsize)
         random.seed(seed)
-        gamelib.debug_write('Random seed: {}'.format(seed))
+        #gamelib.debug_write('Random seed: {}'.format(seed))
 
     def on_game_start(self, config):
         """
@@ -33,9 +34,13 @@ class AlgoStrategy(gamelib.AlgoCore):
         """
         self.att_dir = {}
         self.def_dir = {}
+        self.my_paths = {}
+        self.internal_state = None
+        self.sdt = -100
+
         self.opp_edges = [[0,14], [1,15], [2,16], [3,17], [4,18], [5,19], [6,20], [7,21], [8,22], [9,23], [10,24], [11,25], [12,26], [13,27], [14,27], [15,26], [16,25], [17,24], [18,23], [19,22], [20,21], [21,20], [22,19], [23,18], [24,17], [25,16], [26,15], [27,14]]
         self.my_edges =  [[0,13], [1,12], [2,11], [3,10], [4,9], [5,8], [6,7], [7,6], [8,5], [9,4], [10,3], [11,2], [12,1], [13,0], [14,0], [15,1], [16,2], [17,3], [18,4], [19,5], [20,6], [21,7], [22,8], [23,9], [24,10], [25,11], [26,12], [27,13]]
-        gamelib.debug_write('Configuring your custom algo strategy...')
+        #gamelib.debug_write('Configuring your custom algo strategy...')
         self.config = config
         global WALL, SUPPORT, TURRET, SCOUT, DEMOLISHER, INTERCEPTOR, MP, SP
         WALL = config["unitInformation"][0]["shorthand"]
@@ -58,9 +63,10 @@ class AlgoStrategy(gamelib.AlgoCore):
         game engine.
         """
         game_state = gamelib.GameState(self.config, turn_state)
+        self.internal_state = deepcopy(game_state)
         gamelib.debug_write('Performing turn {} of your custom algo strategy'.format(game_state.turn_number))
         game_state.suppress_warnings(True)  #Comment or remove this line to enable warnings.
-
+        gamelib.debug_write("SD:", self.sdt)
         self.hard_strat(game_state)
 
         game_state.submit_turn()
@@ -71,78 +77,99 @@ class AlgoStrategy(gamelib.AlgoCore):
     strategy and can safely be replaced for your custom algo.
     """
 
+    def L2Dist(self, path1, path2):
+        sm = 0
+        for cnt in range(min(len(path1), len(path2))):
+            a = path1[cnt]
+            b = path2[cnt]
+            sm += (a[0] - b[0])**2 + (a[1] - b[1])**2
+        return sm
+
+    def earliestSim(self, path1, path2):
+        for cnt in range(min(len(path1), len(path2))):
+            a = path1[cnt]
+            b = path2[cnt]
+            if a == b:
+                return cnt
+        return 10000000000
+
+    def LinfNorm(self, path1, path2):
+        sm = 0
+        for cnt in range(min(len(path1), len(path2))):
+            a = path1[cnt]
+            b = path2[cnt]
+            sm = max(((a[0] - b[0])**2 + (a[1] - b[1])**2)**0.5, sm)
+        return sm
+
     def hard_strat(self, game_state):
-        turret_locs = [[13,9], [22,12], [5,12], [2,13], [25,13]]
-        support_locs = [[21,7], [20,7], [19,7], [18,6], [17,6], [16,5],[16,4]]
-        turret_locs2 = [[18,9], [9,9]]
-        turret_locs3 = [[11,7], [3,11], [24,11]]
-        support_locs2 = [[14,0], [13,0], [14,3], [13,3], [12,4], [11,5], [10,6], [9,6], [16,2], [15,1], [14,1], [13,1], [12,1], [11,2], [10,3], [9,4]]
+        turret_locs = [[16,13],[3,13],[24,13],[10,13],[4,13],[23,13]]
+        support_locs = [[13,2],[14,2],[13,3],[14,3]]
+        turret_locs2 = [[2,13],[22,13],[11,13],[5,13],[25,13],[15,13]]
+        support_locs2 = [[13,4],[14,4],[13,5],[14,5]]
+        turret_locs3 = [[13,13],[21,13],[6,13],[12,13],[15,13]]
+        support_locs3 = [[9,9],[20,9],[20,8],[10,8],[8,10],[22,10]]
+        wall_locs1 = [[]]
 
-        for l in turret_locs:
-            if len(game_state.game_map[l]) == 0:
-                if game_state.get_resource(0) >= 9:
-                    game_state.attempt_spawn(TURRET, l)
-                    game_state.attempt_upgrade(l)
-            if game_state.get_resource(0) < 9:
-                break
+        turn = game_state.turn_number
+        [mySP, myMP] = game_state.get_resources(0)
 
-        for l in support_locs:
-            if len(game_state.game_map[l]) == 0:
-                if game_state.get_resource(0) >= 8:
-                    game_state.attempt_spawn(SUPPORT, l)
-            if game_state.get_resource(0) < 1:
-                break
+        self.efficient_spawner_turret(game_state, turret_locs)
+        self.efficient_spawner_support(game_state, support_locs)
 
+        self.efficient_spawner_turret(game_state, turret_locs2)
+        self.efficient_spawner_support(game_state, support_locs2)
 
-        for l in turret_locs2:
-            if len(game_state.game_map[l]) == 0:
-                if game_state.get_resource(0) >= 9:
-                    game_state.attempt_spawn(TURRET, l)
-                    game_state.attempt_upgrade(l)
-            if game_state.get_resource(0) < 9:
-                break
+        self.efficient_spawner_turret(game_state, turret_locs3)
+        self.efficient_spawner_support(game_state, support_locs3)
 
-        for l in support_locs:
-            if len(game_state.game_map[l]) != 0:
-                if game_state.get_resource(0) >= 7:
-                    game_state.attempt_upgrade(l)
-            if game_state.get_resource(0) < 7:
-                break
-
-        for l in turret_locs3:
-            if len(game_state.game_map[l]) == 0:
-                if game_state.get_resource(0) >= 9:
-                    game_state.attempt_spawn(TURRET, l)
-                    game_state.attempt_upgrade(l)
-            if game_state.get_resource(0) < 9:
-                break
-
-        for l in support_locs2:
-            if len(game_state.game_map[l]) == 0:
-                if game_state.get_resource(0) >= 8:
-                    game_state.attempt_spawn(SUPPORT, l)
-            if game_state.get_resource(0) < 1:
-                break
-
-        for l in support_locs2:
-            if len(game_state.game_map[l]) != 0:
-                if game_state.get_resource(0) >= 7:
-                    game_state.attempt_upgrade(l)
-            if game_state.get_resource(0) < 7:
-                break
+        self.remove_vulnerable_turret(game_state, turret_locs+turret_locs2+turret_locs3)
 
         self.att_dir = {}
+        self.my_paths = {}
         damages = [self.netProtect(game_state, edge) for edge in self.my_edges]
 
         SC_health = 15
 
-        mattack = math.floor(game_state.get_resource(1)) - 1
+        mattack = math.floor(game_state.get_resource(1))
         netDams = [mattack*(SC_health+a) - b for a,b in damages]
         gamelib.debug_write(netDams)
 
-        if any(n > 0 for n in netDams):
+
+        if (any(n > 0 for n in netDams) or mattack > 24)and abs(self.sdt-game_state.turn_number) > 10:
             best_loc = self.my_edges[netDams.index(max(netDams))]
             game_state.attempt_spawn(SCOUT,best_loc,mattack)
+
+        elif any(n > 0 for n in netDams) or mattack > 24:
+            #is there a wall at the end of the best path
+            if game_state.turn_number < 5:
+                best_loc = self.my_edges[netDams.index(max(netDams))]
+                game_state.attempt_spawn(SCOUT,best_loc,mattack)
+            else:
+                bpath =self.my_paths[tuple(self.my_edges[netDams.index(max(netDams))])]
+                qualifiers = []
+                for cnt, n in enumerate(netDams):
+                    currpath = self.my_paths[tuple(self.my_edges[cnt])]
+                    gamelib.debug_write("WHOAAA", bpath[0], currpath[0], self.LinfNorm(bpath, currpath), self.earliestSim(bpath, currpath)/max(len(currpath), len(bpath)) )
+                    if cnt == netDams.index(max(netDams)):
+                        continue
+                    if n > 0 and self.LinfNorm(bpath, currpath) < 17 and self.earliestSim(bpath, currpath)/max(len(currpath), len(bpath)) > 0.1:
+                        qualifiers.append([cnt, n])
+                qualifiers = sorted(qualifiers, key=lambda x: x[1], reverse=True)
+                gamelib.debug_write("QINGGGGGGGGGG", qualifiers)
+                if len(qualifiers) != 0:
+                    gamelib.debug_write("Qing?????????????",self.my_edges[qualifiers[0][0]])
+                    best_loc = self.my_edges[netDams.index(max(netDams))]
+                    second_best = self.my_edges[qualifiers[0][0]]
+                    if game_state.turn_number < 10 and mattack > 5:
+                        game_state.attempt_spawn(SCOUT,best_loc,int(mattack/2))
+                        game_state.attempt_spawn(SCOUT,second_best,math.floor(game_state.get_resource(1)))
+                    if game_state.turn_number < 20 and mattack > 9:
+                        game_state.attempt_spawn(SCOUT,best_loc,int(mattack/2))
+                        game_state.attempt_spawn(SCOUT,second_best,math.floor(game_state.get_resource(1)))
+                    if mattack > 19:
+                        game_state.attempt_spawn(SCOUT,best_loc,int(mattack/2))
+                        game_state.attempt_spawn(SCOUT,second_best,math.floor(game_state.get_resource(1)))
+
 
 
     #given path, calculate shielding recieved PER UNIT
@@ -164,7 +191,7 @@ class AlgoStrategy(gamelib.AlgoCore):
 
           if location_list == None:
               return -10000
-          gamelib.debug_write(len(location_list))
+          #gamelib.debug_write(len(location_list))
           for location in location_list:
               possible_locations= game_state.game_map.get_locations_in_range(location, max_range)
               for loc in possible_locations:
@@ -208,9 +235,10 @@ class AlgoStrategy(gamelib.AlgoCore):
 
     def netProtect(self, game_state, start):
         path = game_state.find_path_to_edge(start)
+        self.my_paths[tuple(start)] = path
         defe = self.get_shielders(game_state, path)
         atk = self.least_damage_spawn_location(game_state, path)
-        gamelib.debug_write("Calculating Optimal Attack Angle for", game_state.turn_number, start, atk, defe)
+        #gamelib.debug_write("Calculating Optimal Attack Angle for", game_state.turn_number, start, atk, defe)
         return [defe,atk]
 
     def filter_blocked_locations(self, locations, game_state):
@@ -231,15 +259,46 @@ class AlgoStrategy(gamelib.AlgoCore):
         state = json.loads(turn_string)
         events = state["events"]
         breaches = events["breach"]
+        sds = events["selfDestruct"]
         for breach in breaches:
             location = breach[0]
             unit_owner_self = True if breach[4] == 1 else False
             # When parsing the frame data directly,
             # 1 is integer for yourself, 2 is opponent (StarterKit code uses 0, 1 as player_index instead)
             if not unit_owner_self:
-                gamelib.debug_write("Got scored on at: {}".format(location))
+                #gamelib.debug_write("Got scored on at: {}".format(location))
                 self.scored_on_locations.append(location)
-                gamelib.debug_write("All locations: {}".format(self.scored_on_locations))
+                #gamelib.debug_write("All locations: {}".format(self.scored_on_locations))
+        if len(sds) != 0:
+            self.sdt = state["turnInfo"][1]
+
+    #spawns units with an emphasis on upgrades, use for turrets and supports
+    def efficient_spawner_turret(self, game_state, locations):
+        for l in locations:
+            if game_state.get_resource(0) < 9:
+                return
+            else:
+                game_state.attempt_spawn(TURRET,l)
+                game_state.attempt_upgrade(l)
+
+    def efficient_spawner_support(self, game_state, locations):
+        for l in locations:
+            if game_state.get_resource(0) < 8:
+                return
+            else:
+                game_state.attempt_spawn(SUPPORT, l)
+                game_state.attempt_upgrade(l)
+
+    def remove_vulnerable_turret(self, game_state, locations):
+        for l in locations:
+            x,y = l
+            for u in game_state.game_map[x,y]:
+                if (u.health <= .8*u.max_health) and (u.upgraded == False):
+                    game_state.attempt_remove([l])
+                elif (u.health + 220 <= .3*u.max_health) and (u.upgraded == True):
+                    game_state.attempt_remove([l])
+                else:
+                    pass
 
 
 if __name__ == "__main__":
