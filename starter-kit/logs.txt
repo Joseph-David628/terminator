@@ -1,0 +1,248 @@
+Starting Engine: August_17_2020
+Starting single worker game.
+Looking for Config file at: 
+/Users/HG/Desktop/TerminalChallange/terminator/starter-kit/game-configs.json
+/Users/HG/Desktop/TerminalChallange/terminator/starter-kit/python-algo/run_p1.sh
+/Users/HG/Desktop/TerminalChallange/terminator/starter-kit/python-algo/run_p2.sh
+Command: /Users/HG/Desktop/TerminalChallange/terminator/starter-kit/python-algo/run_p1.sh
+Running: [/Users/HG/Desktop/TerminalChallange/terminator/starter-kit/python-algo/run_p1.sh]
+Starting algo!
+Command: /Users/HG/Desktop/TerminalChallange/terminator/starter-kit/python-algo/run_p2.sh
+Running: [/Users/HG/Desktop/TerminalChallange/terminator/starter-kit/python-algo/run_p2.sh]
+Starting algo!
+Saving replay: /Users/HG/Desktop/TerminalChallange/terminator/starter-kit/replays/p1-07-08-2021-15-25-55-1628367955945--1364522092.replay
+P1 Name: python-algo seasonMode:5
+P2 Name: python-algo seasonMode:5
+Waiting for: 3000 before starting first turn.
+SAPlayer 1 python-algo: Random seed: 7646324045331292340
+SAPlayer 1 python-algo: ---------------- Starting Your Algo --------------------
+SAPlayer 2 python-algo: Random seed: 2573271439219925583
+SAPlayer 2 python-algo: ---------------- Starting Your Algo --------------------
+Done waiting starting first turn.
+SAPlayer 1 python-algo: Configuring your custom algo strategy...
+SAPlayer 1 python-algo: Performing turn 0 of your custom algo strategy
+SAPlayer 2 python-algo: Configuring your custom algo strategy...
+SAPlayer 2 python-algo: Performing turn 0 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 1 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 1 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 2 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 2 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 3 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 3 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 4 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 4 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 5 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 5 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 6 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 6 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 7 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 7 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 8 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 8 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 9 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 9 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 10 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 10 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 11 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 11 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 12 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 12 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 13 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 13 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 14 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 14 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 15 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 15 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 16 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 16 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 17 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 17 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 18 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 18 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 19 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 19 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 20 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 20 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 21 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 21 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 22 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 22 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 23 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 23 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 24 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 24 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 25 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 25 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 26 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 26 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 27 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 27 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 28 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 28 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 29 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 29 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 30 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 30 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 31 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 31 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 32 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 32 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 33 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 33 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 34 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 34 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 35 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 35 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 36 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 36 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 37 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 37 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 38 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 38 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 39 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 39 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 40 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 40 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 41 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 41 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 42 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 42 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 43 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 43 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 44 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 44 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 45 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 45 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 46 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 46 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 47 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 47 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 48 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 48 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 49 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 49 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 50 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 50 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 51 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 51 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 52 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 52 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 53 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 53 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 54 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 54 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 55 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 55 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 56 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 56 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 57 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 57 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 58 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 58 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 59 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 59 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 60 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 60 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 61 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 61 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 62 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 62 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 63 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 63 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 64 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 64 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 65 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 65 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 66 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 66 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 67 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 67 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 68 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 68 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 69 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 69 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 70 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 70 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 71 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 71 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 72 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 72 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 73 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 73 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 74 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 74 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 75 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 75 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 76 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 76 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 77 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 77 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 78 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 78 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 79 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 79 of your custom algo strategy
+SAPlayer 1 python-algo: Performing turn 80 of your custom algo strategy
+SAPlayer 2 python-algo: Performing turn 80 of your custom algo strategy
+PLAYER 2 HIT! NEW HP: 29.0
+PLAYER 2 HIT! NEW HP: 28.0
+PLAYER 2 HIT! NEW HP: 27.0
+PLAYER 2 HIT! NEW HP: 26.0
+PLAYER 2 HIT! NEW HP: 25.0
+PLAYER 2 HIT! NEW HP: 24.0
+PLAYER 2 HIT! NEW HP: 23.0
+PLAYER 2 HIT! NEW HP: 22.0
+PLAYER 2 HIT! NEW HP: 21.0
+PLAYER 2 HIT! NEW HP: 20.0
+PLAYER 2 HIT! NEW HP: 19.0
+PLAYER 2 HIT! NEW HP: 18.0
+PLAYER 2 HIT! NEW HP: 17.0
+PLAYER 2 HIT! NEW HP: 16.0
+PLAYER 2 HIT! NEW HP: 15.0
+PLAYER 2 HIT! NEW HP: 14.0
+PLAYER 2 HIT! NEW HP: 13.0
+PLAYER 2 HIT! NEW HP: 12.0
+PLAYER 2 HIT! NEW HP: 11.0
+PLAYER 2 HIT! NEW HP: 10.0
+PLAYER 2 HIT! NEW HP: 9.0
+PLAYER 2 HIT! NEW HP: 8.0
+PLAYER 2 HIT! NEW HP: 7.0
+PLAYER 2 HIT! NEW HP: 6.0
+PLAYER 2 HIT! NEW HP: 5.0
+PLAYER 2 HIT! NEW HP: 4.0
+PLAYER 2 HIT! NEW HP: 3.0
+PLAYER 2 HIT! NEW HP: 2.0
+PLAYER 2 HIT! NEW HP: 1.0
+PLAYER 2 HIT! NEW HP: 0.0
+PLAYER 2 HIT! NEW HP: -1.0
+PLAYER 2 HIT! NEW HP: -2.0
+PLAYER 2 HIT! NEW HP: -3.0
+PLAYER 2 HIT! NEW HP: -4.0
+PLAYER 2 HIT! NEW HP: -5.0
+PLAYER 2 HIT! NEW HP: -6.0
+PLAYER 2 HIT! NEW HP: -7.0
+PLAYER 2 HIT! NEW HP: -8.0
+PLAYER 2 HIT! NEW HP: -9.0
+Winner (p1 perspective, 1 = p1 2 = p2): 1
+Waiting to exit finished game.
+SAPlayer 1 python-algo: Performing turn 81 of your custom algo strategy
+SAPlayer 1 python-algo: Got end state, game over. Stopping algo.
+sent game end playerIndex: 0
+SAPlayer 2 python-algo: Performing turn 81 of your custom algo strategy
+SAPlayer 2 python-algo: Got end state, game over. Stopping algo.
+sent game end playerIndex: 1
+sent game end playerIndex: 0
+sent game end playerIndex: 1
+Done waiting now exiting finished game.
+Hard Exiting Now
+Closing stream
+ !status=1
+Closing playerIndex: 0
+Closing stream
+ !status=1
+Closing playerIndex: 1
+Exited for loop
+End of main
+Closing stream
+ !status=1
+Closing stream
+ !status=1
